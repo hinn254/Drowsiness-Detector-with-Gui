@@ -219,9 +219,12 @@ def get_speed():
                 drowsiness_checker(COUNTER,EYE_ASPECT_RATIO_THRESHOLD,EYE_ASPECT_RATIO_CONSEC_FRAMES)
    
     # If input is not an integer
-    except:
+    except ValueError:
         messagebox.showerror('Value Error','Please enter a valid number')
         speed_input.delete(0, END)
+    except:
+        messagebox.showerror('Error','Exiting program, Please launch again')
+        root.quit()
 
 
 # stops and ends program just like quit
