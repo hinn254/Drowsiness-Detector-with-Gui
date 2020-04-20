@@ -41,46 +41,54 @@ def drowsiness_checker(COUNTER,EYE_ASPECT_RATIO_THRESHOLD,EYE_ASPECT_RATIO_CONSE
         #Detect facial points through detector function
         faces = detector(gray, 0)
 
-        #Detect faces through haarcascade_frontalface_default.xml
-        face_rectangle = face_cascade.detectMultiScale(gray, 1.3, 5)
+        # Check if there is face on the screen
+        if faces:
 
-        #Draw rectangle around each face detected
-        for (x,y,w,h) in face_rectangle:
-            cv2.rectangle(frame,(x,y),(x+w,y+h),(255,0,0),2)
+            #Detect faces through haarcascade_frontalface_default.xml
+            face_rectangle = face_cascade.detectMultiScale(gray, 1.3, 5)
 
-        #Detect facial points
-        for face in faces:
+            #Draw rectangle around each face detected
+            for (x,y,w,h) in face_rectangle:
+                cv2.rectangle(frame,(x,y),(x+w,y+h),(255,0,0),2)
 
-            shape = predictor(gray, face)
-            shape = face_utils.shape_to_np(shape)
+            #Detect facial points
+            for face in faces:
 
-            #Get array of coordinates of leftEye and rightEye
-            leftEye = shape[lStart:lEnd]
-            rightEye = shape[rStart:rEnd]
+                shape = predictor(gray, face)
+                shape = face_utils.shape_to_np(shape)
 
-            #Calculate aspect ratio of both eyes
-            leftEyeAspectRatio = eye_aspect_ratio(leftEye)
-            rightEyeAspectRatio = eye_aspect_ratio(rightEye)
+                #Get array of coordinates of leftEye and rightEye
+                leftEye = shape[lStart:lEnd]
+                rightEye = shape[rStart:rEnd]
 
-            eyeAspectRatio = (leftEyeAspectRatio + rightEyeAspectRatio) / 2
+                #Calculate aspect ratio of both eyes
+                leftEyeAspectRatio = eye_aspect_ratio(leftEye)
+                rightEyeAspectRatio = eye_aspect_ratio(rightEye)
 
-            #Use hull to remove convex contour discrepencies and draw eye shape around eyes
-            leftEyeHull = cv2.convexHull(leftEye)
-            rightEyeHull = cv2.convexHull(rightEye)
-            cv2.drawContours(frame, [leftEyeHull], -1, (0, 255, 0), 1)
-            cv2.drawContours(frame, [rightEyeHull], -1, (0, 255, 0), 1)
+                eyeAspectRatio = (leftEyeAspectRatio + rightEyeAspectRatio) / 2
+
+                #Use hull to remove convex contour discrepencies and draw eye shape around eyes
+                leftEyeHull = cv2.convexHull(leftEye)
+                rightEyeHull = cv2.convexHull(rightEye)
+                cv2.drawContours(frame, [leftEyeHull], -1, (0, 255, 0), 1)
+                cv2.drawContours(frame, [rightEyeHull], -1, (0, 255, 0), 1)
 
 
-            #Detect if eye aspect ratio is less than threshold
-            if(eyeAspectRatio < EYE_ASPECT_RATIO_THRESHOLD):
-                COUNTER += 1
-                #If no. of frames is greater than threshold frames,
-                if COUNTER >= EYE_ASPECT_RATIO_CONSEC_FRAMES:
-                    pygame.mixer.music.play(-1)
-                    cv2.putText(frame, "You are Drowsy", (150,200), cv2.FONT_HERSHEY_SIMPLEX, 1.5, (0,0,255), 2)
-            else:
-                pygame.mixer.music.stop()
-                COUNTER = 0
+                #Detect if eye aspect ratio is less than threshold
+                if(eyeAspectRatio < EYE_ASPECT_RATIO_THRESHOLD):
+                    COUNTER += 1
+                    #If no. of frames is greater than threshold frames,
+                    if COUNTER >= EYE_ASPECT_RATIO_CONSEC_FRAMES:
+                        pygame.mixer.music.play(-1)
+                        cv2.putText(frame, "You are Drowsy", (150,200), cv2.FONT_HERSHEY_SIMPLEX, 1.5, (0,0,255), 2)
+                else:
+                    pygame.mixer.music.stop()
+                    COUNTER = 0
+        
+        # If there is no face on the screen
+        else:
+            pygame.mixer.music.play(-1)
+            cv2.putText(frame, "No Face Detected", (150,200), cv2.FONT_HERSHEY_SIMPLEX, 1.5, (0,0,255), 2)
 
         #Show video feed
         cv2.imshow('Video', frame)
