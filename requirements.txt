@@ -1,7 +1,7 @@
 dlib==19.19.0
 imutils==0.5.3
 numpy==1.22.0
-opencv-python==4.2.0.34
+opencv-python==4.8.1.78
 pygame==1.9.6
 scipy==1.10.0
 
